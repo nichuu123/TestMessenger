@@ -83,7 +83,7 @@
         <!-- LOGIN / REGISTER VIEW -->
         <div id="login-view">
             <h2 style="margin-bottom:10px; color:#005B8A;">TestMessenger</h2>
-            <input type="text" id="login-user" class="input-field" placeholder="Display Name" />
+            <input type="text" id="login-user" class="input-field" placeholder="Display Name (e.g. Nigel)" />
             <input type="password" id="login-pass" class="input-field" placeholder="Password" />
             <input type="text" id="login-status" class="input-field" placeholder="Status (e.g. Available - Chilling)" />
             <p style="text-align:left; font-size:11px; margin-bottom:3px; color:#444;">Profile Picture (Optional):</p>
@@ -183,7 +183,7 @@
         }
 
         function wipeDatabase() {
-            if (confirm('Are you sure you want to wipe all data and start fresh?')) {
+            if (confirm('Are you sure you want to wipe all BBM data and start fresh?')) {
                 ajaxPost('/api/reset', {}, function() {
                     alert('Database wiped!');
                     location.reload();
