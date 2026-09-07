@@ -1,400 +1,307 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TestMessenger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypted BBM Messenger</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; -webkit-tap-highlight-color: rgba(0,0,0,0); }
-        body, html { height: 100%; background: #000; overflow: hidden; }
-        #app { max-width: 600px; margin: 0 auto; background: #fff; height: 100%; position: relative; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body, html { height: 100%; background: #121212; color: #fff; display: flex; justify-content: center; }
+        #app { width: 100%; max-width: 480px; height: 100%; background: #1e1e1e; display: flex; flex-direction: column; position: relative; border-left: 1px solid #333; border-right: 1px solid #333; }
         
-        /* Trackpad Focus Styles for BB Curve 9360 */
-        a:focus, button:focus, input:focus, .list-item:focus, .accordion:focus {
-            outline: 2px solid #005B8A !important;
-            background-color: #E1F5FE !important;
-        }
-
-        /* Profile Top Banner */
-        .bb-header { background: #000; color: #fff; padding: 6px 8px; border-bottom: 2px solid #333; overflow: hidden; }
-        .avatar { width: 42px; height: 42px; background: #555; border-radius: 4px; border: 1px solid #ffcc00; float: left; margin-right: 8px; background-size: cover; background-position: center; }
-        .avatar-sm { width: 32px; height: 32px; background: #ccc; border-radius: 3px; float: left; margin-right: 8px; background-size: cover; background-position: center; border: 1px solid #aaa; }
-        .user-meta { float: left; width: calc(100% - 60px); }
-        .user-meta h1 { font-size: 14px; margin: 0; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .header { background: #0a0a0a; padding: 12px; border-bottom: 2px solid #005B8A; display: flex; justify-content: space-between; align-items: center; }
         .pin-tag { color: #ffcc00; font-size: 11px; font-weight: bold; }
-        .user-status-text { font-size: 11px; color: #ccc; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #2e7d32; margin-right: 6px; }
+        .offline { background: #666; }
 
-        /* Status Dot Indicator */
-        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #2e7d32; margin-right: 4px; }
-        .offline-dot { background: #888888; }
+        .view { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .hidden { display: none !important; }
 
-        /* BBM Accordion Headers */
-        .accordion { background: #c5d0d8; color: #000; font-weight: bold; font-size: 13px; padding: 5px 8px; border-top: 1px solid #fff; border-bottom: 1px solid #888; clear: both; }
-        .accordion.yellow { background: #fef1b5; border-bottom: 1px solid #d6c694; }
+        .input-field { width: 100%; padding: 10px; margin-bottom: 10px; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #fff; font-size: 14px; }
+        .btn { padding: 10px 16px; background: #005B8A; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .btn-danger { background: #a00; }
 
-        /* Layout Views */
-        #login-view { padding: 15px; background: #e8ecef; height: 100%; overflow-y: auto; text-align: center; }
-        .input-field { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #888; border-radius: 3px; font-size: 13px; }
-        .btn { padding: 8px 15px; background: #005B8A; color: #fff; font-weight: bold; border: 1px solid #003D5E; border-radius: 3px; cursor: pointer; font-size: 13px; }
-        .btn-danger { background: #a00; border-color: #600; }
-        .btn-secondary { background: #444; border-color: #222; }
+        .list-item { padding: 12px; border-bottom: 1px solid #2a2a2a; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .list-item:hover { background: #252525; }
 
-        #home-view { height: 100%; display: none; }
-        #home-content { height: calc(100% - 56px); overflow-y: auto; background: #fff; }
+        #messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { max-width: 80%; padding: 8px 12px; border-radius: 8px; font-size: 13px; position: relative; word-wrap: break-word; }
+        .msg-in { background: #2a2a2a; align-self: flex-start; border-bottom-left-radius: 0; }
+        .msg-out { background: #005B8A; align-self: flex-end; border-bottom-right-radius: 0; }
+        .tick { font-size: 10px; margin-left: 6px; opacity: 0.8; }
 
-        /* Contact Lists */
-        .list-item { padding: 8px; border-bottom: 1px solid #eee; background: #fff; cursor: pointer; clear: both; overflow: hidden; }
-        .list-item:active { background: #005B8A; color: #fff; }
-        .list-item:active .status-msg { color: #d0e0ff; }
-        .list-item .item-title { font-weight: bold; font-size: 13px; font-style: italic; }
-        .list-item .status-msg { font-size: 11px; color: #666; margin-top: 2px; }
-        .list-item .time-stamp { float: right; font-size: 10px; color: #888; }
+        .ping-msg { background: #5c0000; color: #ff9999; font-weight: bold; text-align: center; align-self: center; width: 90%; }
+        .shake { animation: shake 0.3s ease-in-out infinite; }
+        @keyframes shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-6px, 0); } 75% { transform: translate(6px, 0); } }
 
-        /* Chat View Window */
-        #chat-view { display: none; height: 100%; position: relative; background: #e8ecef; }
-        #chat-header { background: #000; color: #fff; padding: 6px; border-bottom: 2px solid #005B8A; height: 45px; }
-        #back-btn { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: bold; float: left; padding: 0 10px 0 4px; cursor: pointer; }
-        #chat-title-text { float: left; font-weight: bold; font-size: 14px; margin-top: 4px; }
-        #chat-messages { height: calc(100% - 90px); overflow-y: auto; padding: 8px; }
-
-        /* Chat Bubbles & Ticks */
-        .msg { margin-bottom: 8px; padding: 6px 8px; border-radius: 4px; font-size: 13px; max-width: 82%; position: relative; }
-        .msg-in { background: #ffffff; border: 1px solid #ccc; float: left; clear: both; }
-        .msg-out { background: #E1F5FE; border: 1px solid #B3E5FC; float: right; clear: both; }
-        .msg-author { font-size: 10px; color: #005B8A; font-weight: bold; margin-bottom: 2px; }
-        .msg-tick { font-size: 10px; font-weight: bold; color: #005B8A; margin-left: 5px; }
-        .msg-read { color: #2e7d32; }
-
-        /* PING! Visual Indicator */
-        .ping-bubble { background: #ffcdd2; border: 1px solid #e57373; color: #b71c1c; font-weight: bold; text-align: center; width: 95%; clear: both; float: none; margin: 8px auto; }
-        .ping-shake { animation: shake 0.3s ease-in-out infinite; }
-        @keyframes shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-8px, 0); } 50% { transform: translate(8px, 0); } 75% { transform: translate(-8px, 0); } 100% { transform: translate(0, 0); } }
-
-        /* Controls / Input Bar */
-        #input-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 45px; background: #ccc; padding: 6px; border-top: 1px solid #999; }
-        #msg-input { width: 55%; padding: 6px; border: 1px solid #888; border-radius: 3px; float: left; font-size: 12px; }
-        .chat-btn { width: 20%; height: 31px; float: right; margin-left: 2%; font-size: 11px; padding: 0; }
-        .clear { clear: both; }
+        .input-bar { padding: 10px; background: #0a0a0a; display: flex; gap: 8px; border-top: 1px solid #2a2a2a; }
+        .input-bar input { flex: 1; margin: 0; }
     </style>
 </head>
 <body>
     <div id="app">
-        
-        <!-- LOGIN / REGISTER VIEW -->
-        <div id="login-view">
-            <h2 style="margin-bottom:10px; color:#005B8A;">TestMessenger</h2>
-            <input type="text" id="login-user" class="input-field" placeholder="Display Name" />
+        <!-- LOGIN VIEW -->
+        <div id="login-view" class="view" style="padding: 20px; justify-content: center;">
+            <h2 style="margin-bottom: 16px; color: #005B8A; text-align: center;">E2EE BBM Messenger</h2>
+            <input type="text" id="login-user" class="input-field" placeholder="Username" />
             <input type="password" id="login-pass" class="input-field" placeholder="Password" />
-            <input type="text" id="login-status" class="input-field" placeholder="Status (e.g. Available - Chilling)" />
-            <p style="text-align:left; font-size:11px; margin-bottom:3px; color:#444;">Profile Picture (Optional):</p>
-            <input type="file" id="login-avatar" class="input-field" accept="image/*" />
-            
-            <button class="btn" style="width:100%; margin-top:5px;" onclick="doLogin()">Sign In / Register</button>
-            <br><br>
-            <button class="btn btn-danger" style="width:100%; font-size:11px;" onclick="wipeDatabase()">Wipe Server Database (Reset All)</button>
+            <input type="text" id="login-status" class="input-field" placeholder="Status Message" />
+            <button class="btn" onclick="doLogin()">Sign In / Register</button>
         </div>
 
-        <!-- HOME / MAIN VIEW -->
-        <div id="home-view">
-            <div class="bb-header">
-                <div class="avatar" id="my-avatar"></div>
-                <div class="user-meta">
-                    <h1><span class="status-dot"></span><span id="my-name">---</span></h1>
-                    <div class="pin-tag">PIN: <span id="my-pin">--------</span></div>
-                    <div class="user-status-text" id="my-status">Available</div>
+        <!-- HOME VIEW -->
+        <div id="home-view" class="view hidden">
+            <div class="header">
+                <div>
+                    <div><span class="status-dot"></span><strong id="my-name">---</strong></div>
+                    <div style="font-size: 11px; color: #aaa;" id="my-status">---</div>
                 </div>
+                <div class="pin-tag">PIN: <span id="my-pin">--------</span></div>
+            </div>
+            
+            <div style="padding: 10px; background: #181818; display: flex; gap: 8px;">
+                <input type="text" id="add-pin-input" class="input-field" style="margin:0;" placeholder="Add BBM PIN..." />
+                <button class="btn" onclick="addContactByPin()">Add</button>
             </div>
 
-            <div id="home-content">
-                <div style="padding: 6px; background: #e0e5e8; border-bottom: 1px solid #ccc;">
-                    <input type="text" id="add-pin-input" class="input-field" style="width:68%; margin:0; float:left;" placeholder="Enter PIN..." />
-                    <button class="btn" style="width:28%; float:right; padding:6px;" onclick="addContactByPin()">+ Contact</button>
-                    <div class="clear"></div>
-                </div>
-
-                <div class="accordion yellow">Recent Updates</div>
-                <div id="recent-updates-list"></div>
-
-                <div class="accordion">Contacts</div>
-                <div id="contacts-list"></div>
-
-                <div style="padding:10px;">
-                    <button class="btn btn-secondary" style="width:100%; font-size:11px;" onclick="sendBroadcast()">Broadcast Message to All</button>
-                </div>
-            </div>
+            <div style="flex:1; overflow-y: auto;" id="contacts-list"></div>
         </div>
 
         <!-- CHAT VIEW -->
-        <div id="chat-view">
-            <div id="chat-header">
-                <button id="back-btn" onclick="showHome()">&lsaquo;</button>
-                <div class="avatar-sm" id="chat-target-avatar"></div>
-                <div id="chat-title-text">Chat</div>
+        <div id="chat-view" class="view hidden">
+            <div class="header">
+                <button class="btn" style="padding: 4px 8px;" onclick="showHome()">&lsaquo; Back</button>
+                <strong id="chat-target-title">---</strong>
+                <span style="font-size: 9px; color: #00ffcc;">🔒 E2EE Active</span>
             </div>
 
-            <div id="chat-messages"></div>
+            <div id="messages"></div>
 
-            <div id="input-bar">
-                <input type="text" id="msg-input" placeholder="Type message..." />
-                <button class="btn chat-btn" style="background:#a00; border-color:#600;" onclick="sendPing()">PING!</button>
-                <button class="btn chat-btn" onclick="sendMessage()">Send</button>
+            <div class="input-bar">
+                <input type="text" id="msg-input" class="input-field" placeholder="Encrypted message..." />
+                <button class="btn btn-danger" onclick="sendPing()">PING!</button>
+                <button class="btn" onclick="sendMessage()">Send</button>
             </div>
         </div>
-
     </div>
 
     <script>
-        // STRICT ES5 JAVASCRIPT FOR BBOS 7 COMPATIBILITY
-        var currentUser = null;
-        var currentTarget = null;
-        var allUsers = {};
-        var allMessages = [];
-        var allUpdates = [];
-        var ws = null;
-        var base64Avatar = '';
+        let currentUser = null;
+        let currentTarget = null;
+        let keyPair = null;
+        let authHash = null;
+        let sharedKeys = {};
+        let ws = null;
+        let state = { users: {}, messages: [] };
 
-        // Read Base64 Image Profile Picture
-        document.getElementById('login-avatar').onchange = function(e) {
-            var file = e.target.files[0];
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function(evt) {
-                    base64Avatar = evt.target.result;
-                };
-                reader.readAsDataURL(file);
+        // --- WEB CRYPTO ENGINE (ECDH P-256 + AES-GCM 256) ---
+        async function deriveAuthHash(password, username) {
+            const enc = new TextEncoder();
+            const buf = await crypto.subtle.digest('SHA-256', enc.encode(`${password}:${username}`));
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function initCryptoKeys() {
+            keyPair = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveKey"]);
+            const pubJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+            return JSON.stringify(pubJwk);
+        }
+
+        async function getSharedKey(targetUser) {
+            if (sharedKeys[targetUser]) return sharedKeys[targetUser];
+            const targetPubKeyJwk = JSON.parse(state.users[targetUser].pubKey);
+            const importedPubKey = await crypto.subtle.importKey("jwk", targetPubKeyJwk, { name: "ECDH", namedCurve: "P-256" }, true, []);
+            
+            const sharedKey = await crypto.subtle.deriveKey(
+                { name: "ECDH", public: importedPubKey },
+                keyPair.privateKey,
+                { name: "AES-GCM", length: 256 },
+                false,
+                ["encrypt", "decrypt"]
+            );
+            sharedKeys[targetUser] = sharedKey;
+            return sharedKey;
+        }
+
+        async function encryptPayload(targetUser, text) {
+            const key = await getSharedKey(targetUser);
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(text));
+            return {
+                ciphertext: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
+                iv: btoa(String.fromCharCode(...iv))
+            };
+        }
+
+        async function decryptPayload(senderUser, ciphertextB64, ivB64) {
+            try {
+                const key = await getSharedKey(senderUser);
+                const ciphertext = Uint8Array.from(atob(ciphertextB64), c => c.charCodeAt(0));
+                const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
+                const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
+                return new TextDecoder().decode(decrypted);
+            } catch(e) {
+                return "[Unable to decrypt message]";
             }
-        };
+        }
 
-        function ajaxPost(url, data, callback) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', url, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    var res = JSON.parse(xhr.responseText);
-                    if (xhr.status === 200) {
-                        if (callback) callback(res);
-                    } else {
-                        alert(res.error || 'Server error');
-                    }
+        // --- NETWORK & APP LOGIC ---
+        async function doLogin() {
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+            const s = document.getElementById('login-status').value.trim();
+
+            if (!u || !p) return alert('Username & password required');
+
+            authHash = await deriveAuthHash(p, u);
+            const pubKeyStr = await initCryptoKeys();
+
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: u, authHash, pubKey: pubKeyStr, statusMessage: s })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                currentUser = data.user;
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('home-view').classList.remove('hidden');
+                document.getElementById('my-name').innerText = currentUser.username;
+                document.getElementById('my-status').innerText = currentUser.statusMessage;
+                document.getElementById('my-pin').innerText = currentUser.pin;
+                initWebSocket();
+            } else {
+                alert(data.error);
+            }
+        }
+
+        function initWebSocket() {
+            const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
+            ws = new WebSocket(protocol + location.host);
+
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ type: 'AUTH', username: currentUser.username }));
+            };
+
+            ws.onmessage = async (evt) => {
+                const msg = JSON.parse(evt.data);
+                if (msg.type === 'STATE_UPDATE') {
+                    state = msg;
+                    renderHome();
+                    if (currentTarget) await renderChat();
                 }
             };
-            xhr.send(JSON.stringify(data));
         }
 
-        function wipeDatabase() {
-            if (confirm('Are you sure you want to wipe all BBM data and start fresh?')) {
-                ajaxPost('/api/reset', {}, function() {
-                    alert('Database wiped!');
-                    location.reload();
-                });
-            }
-        }
-
-        function doLogin() {
-            var u = document.getElementById('login-user').value;
-            var p = document.getElementById('login-pass').value;
-            var s = document.getElementById('login-status').value;
-
-            if (!u || !p) return alert('Username and Password required');
-
-            ajaxPost('/api/login', { username: u, password: p, statusMessage: s, avatar: base64Avatar }, function(res) {
-                currentUser = res.user;
-                document.getElementById('login-view').style.display = 'none';
-                document.getElementById('home-view').style.display = 'block';
-
-                document.getElementById('my-name').innerText = currentUser.username;
-                document.getElementById('my-pin').innerText = currentUser.pin;
-                document.getElementById('my-status').innerText = currentUser.statusMessage;
-                if (currentUser.avatar) {
-                    document.getElementById('my-avatar').style.backgroundImage = 'url(' + currentUser.avatar + ')';
-                }
-
-                initRealtime();
+        async function addContactByPin() {
+            const pin = document.getElementById('add-pin-input').value;
+            const res = await fetch('/api/add-contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: currentUser.username, pin })
             });
-        }
-
-        function initRealtime() {
-            try {
-                ws = new WebSocket('ws://' + location.host);
-                ws.onopen = function() {
-                    ws.send(JSON.stringify({ type: 'AUTH', username: currentUser.username }));
-                };
-                ws.onmessage = function(evt) {
-                    var data = JSON.parse(evt.data);
-                    if (data.type === 'STATE_UPDATE') {
-                        var prevLen = allMessages.length;
-                        allUsers = data.users;
-                        allMessages = data.messages;
-                        allUpdates = data.updates;
-
-                        renderHome();
-                        if (currentTarget) renderChat();
-
-                        // Detect incoming PING!
-                        if (allMessages.length > prevLen) {
-                            var last = allMessages[allMessages.length - 1];
-                            if (last.target === currentUser.username && last.isPing) {
-                                triggerPingEffect();
-                            }
-                        }
-                    }
-                };
-                ws.onerror = function() { startPolling(); };
-            } catch (e) {
-                startPolling();
-            }
-        }
-
-        function startPolling() {
-            setInterval(function() {
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', '/api/sync?username=' + encodeURIComponent(currentUser.username), true);
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        var data = JSON.parse(xhr.responseText);
-                        allUsers = data.users;
-                        allMessages = data.messages;
-                        allUpdates = data.updates;
-                        renderHome();
-                        if (currentTarget) renderChat();
-                    }
-                };
-                xhr.send();
-            }, 2000);
-        }
-
-        function addContactByPin() {
-            var pin = document.getElementById('add-pin-input').value;
-            if (!pin) return alert('Enter a PIN');
-
-            ajaxPost('/api/add-contact', { username: currentUser.username, pin: pin }, function(res) {
-                alert('Contact added: ' + res.added);
+            const data = await res.json();
+            if (res.ok) {
+                alert(`Added ${data.added}`);
                 document.getElementById('add-pin-input').value = '';
-            });
+            } else {
+                alert(data.error);
+            }
         }
 
-        function sendBroadcast() {
-            var text = prompt('Enter message to broadcast to all contacts:');
-            if (text && ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'BROADCAST', text: text }));
-            }
+        function renderHome() {
+            const myContacts = state.users[currentUser.username]?.contacts || [];
+            let html = '';
+            myContacts.forEach(c => {
+                const u = state.users[c] || { online: false, statusMessage: 'Offline' };
+                html += `
+                    <div class="list-item" onclick="openChat('${c}')">
+                        <div>
+                            <div><span class="status-dot ${u.online ? '' : 'offline'}"></span><strong>${c}</strong></div>
+                            <div style="font-size:11px; color:#aaa;">${u.statusMessage}</div>
+                        </div>
+                        <span style="color:#005B8A;">&rsaquo;</span>
+                    </div>`;
+            });
+            document.getElementById('contacts-list').innerHTML = html || '<div style="padding:15px; color:#666;">No contacts. Add someone using their PIN above.</div>';
         }
 
         function showHome() {
             currentTarget = null;
-            document.getElementById('chat-view').style.display = 'none';
-            document.getElementById('home-view').style.display = 'block';
-            renderHome();
+            document.getElementById('chat-view').classList.add('hidden');
+            document.getElementById('home-view').classList.remove('hidden');
         }
 
-        function openChat(target) {
+        async function openChat(target) {
             currentTarget = target;
-            document.getElementById('home-view').style.display = 'none';
-            document.getElementById('chat-view').style.display = 'block';
-
-            document.getElementById('chat-title-text').innerText = target;
-            var targetAvatar = (allUsers[target] && allUsers[target].avatar) ? allUsers[target].avatar : '';
-            document.getElementById('chat-target-avatar').style.backgroundImage = targetAvatar ? 'url(' + targetAvatar + ')' : '';
-
-            renderChat();
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('chat-view').classList.remove('hidden');
+            document.getElementById('chat-target-title').innerText = target;
+            await renderChat();
         }
 
-        function renderHome() {
-            // Render Updates
-            var upHtml = '';
-            for (var i = 0; i < allUpdates.length && i < 5; i++) {
-                var u = allUpdates[i];
-                upHtml += '<div class="list-item">' +
-                    '<div class="item-title">' + u.user + '</div>' +
-                    '<div class="status-msg">' + u.text + '</div>' +
-                    '</div>';
-            }
-            document.getElementById('recent-updates-list').innerHTML = upHtml || '<div class="list-item"><div class="status-msg">No updates yet</div></div>';
+        async function renderChat() {
+            const win = document.getElementById('messages');
+            let html = '';
 
-            // Render Contacts
-            var cHtml = '';
-            var myContacts = (allUsers[currentUser.username] && allUsers[currentUser.username].contacts) ? allUsers[currentUser.username].contacts : [];
-
-            for (var j = 0; j < myContacts.length; j++) {
-                var cName = myContacts[j];
-                var cData = allUsers[cName] || { online: false, statusMessage: 'Offline', avatar: '' };
-                var dotClass = cData.online ? 'status-dot' : 'status-dot offline-dot';
-                var bgStyle = cData.avatar ? 'background-image:url(' + cData.avatar + ')' : '';
-
-                cHtml += '<div class="list-item" tabindex="0" onclick="openChat(\'' + cName + '\')">' +
-                    '<div class="avatar-sm" style="' + bgStyle + '"></div>' +
-                    '<div style="float:left;">' +
-                    '<div class="item-title"><span class="' + dotClass + '"></span>' + cName + '</div>' +
-                    '<div class="status-msg">' + cData.statusMessage + '</div>' +
-                    '</div></div>';
-            }
-            document.getElementById('contacts-list').innerHTML = cHtml || '<div class="list-item"><div class="status-msg">No contacts. Add a friend by PIN above!</div></div>';
-        }
-
-        function renderChat() {
-            var html = '';
-            var unreadFound = false;
-
-            for (var i = 0; i < allMessages.length; i++) {
-                var m = allMessages[i];
+            for (const m of state.messages) {
                 if ((m.sender === currentUser.username && m.target === currentTarget) ||
                     (m.sender === currentTarget && m.target === currentUser.username)) {
-
+                    
                     if (m.isPing) {
-                        html += '<div class="msg ping-bubble">!!! PING !!!<br><span style="font-size:9px;">' + m.timestamp + '</span></div>';
+                        html += `<div class="msg ping-msg">!!! PING !!!</div>`;
                     } else {
-                        var isMe = m.sender === currentUser.username;
-                        var tick = isMe ? (m.status === 'read' ? ' <span class="msg-tick msg-read">R✓</span>' : (m.status === 'delivered' ? ' <span class="msg-tick">D✓</span>' : ' <span class="msg-tick">✓</span>')) : '';
-                        html += '<div class="msg ' + (isMe ? 'msg-out' : 'msg-in') + '">' +
-                            '<div class="msg-author">' + m.sender + '</div>' +
-                            '<div>' + m.text + tick + '</div>' +
-                            '</div>';
-                    }
-
-                    if (m.target === currentUser.username && m.status !== 'read') {
-                        unreadFound = true;
+                        const isMe = m.sender === currentUser.username;
+                        const otherUser = isMe ? currentTarget : m.sender;
+                        const decryptedText = await decryptPayload(otherUser, m.ciphertext, m.iv);
+                        const tick = isMe ? (m.status === 'read' ? 'R✓' : m.status === 'delivered' ? 'D✓' : '✓') : '';
+                        
+                        html += `
+                            <div class="msg ${isMe ? 'msg-out' : 'msg-in'}">
+                                ${decryptedText}
+                                ${isMe ? `<span class="tick">${tick}</span>` : ''}
+                            </div>`;
                     }
                 }
             }
-
-            var win = document.getElementById('chat-messages');
             win.innerHTML = html;
             win.scrollTop = win.scrollHeight;
 
-            if (unreadFound && ws && ws.readyState === 1) {
+            if (ws && ws.readyState === 1) {
                 ws.send(JSON.stringify({ type: 'MARK_READ', sender: currentTarget }));
             }
         }
 
-        function sendMessage() {
-            var input = document.getElementById('msg-input');
-            var text = input.value;
-            if (!text) return;
+        async function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if (!text || !currentTarget) return;
 
-            if (ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'SEND_MSG', target: currentTarget, text: text }));
-            }
+            const encrypted = await encryptPayload(currentTarget, text);
+            ws.send(JSON.stringify({
+                type: 'SEND_MSG',
+                target: currentTarget,
+                ciphertext: encrypted.ciphertext,
+                iv: encrypted.iv
+            }));
             input.value = '';
         }
 
-        function sendPing() {
-            if (ws && ws.readyState === 1) {
-                ws.send(JSON.stringify({ type: 'SEND_MSG', target: currentTarget, text: 'PING', isPing: true }));
-            }
+        async function sendPing() {
+            const encrypted = await encryptPayload(currentTarget, 'PING');
+            ws.send(JSON.stringify({
+                type: 'SEND_MSG',
+                target: currentTarget,
+                ciphertext: encrypted.ciphertext,
+                iv: encrypted.iv,
+                isPing: true
+            }));
         }
 
-        function triggerPingEffect() {
-            document.getElementById('app').className = 'ping-shake';
-            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-            setTimeout(function() {
-                document.getElementById('app').className = '';
-            }, 600);
-        }
-
-        document.getElementById('msg-input').onkeypress = function(e) {
-            if (e.keyCode === 13) sendMessage();
-        };
+        document.getElementById('msg-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
     </script>
 </body>
 </html>
