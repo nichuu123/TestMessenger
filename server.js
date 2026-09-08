@@ -83,7 +83,6 @@ app.post('/api/login', (req, res) => {
     }
 
     if (!db.users[username]) {
-        // Register New User
         const pin = generatePIN();
         db.users[username] = {
             username,
@@ -102,12 +101,18 @@ app.post('/api/login', (req, res) => {
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         });
     } else {
-        // Authenticate User
-        if (db.users[username].authHash !== authHash) {
-            return res.status(401).json({ error: 'Invalid credentials for ' + username });
+        // Authenticate & Migrate Legacy Users
+        if (db.users[username].authHash) {
+            if (db.users[username].authHash !== authHash) {
+                return res.status(401).json({ error: 'Invalid credentials for ' + username });
+            }
+        } else {
+            db.users[username].authHash = authHash; 
+            delete db.users[username].password;
         }
+
         db.users[username].online = true;
-        db.users[username].pubKey = pubKey; // Refresh ECDH Session Key
+        db.users[username].pubKey = pubKey; 
         if (avatar) db.users[username].avatar = avatar;
         if (statusMsg && statusMsg !== db.users[username].statusMessage) {
             db.users[username].statusMessage = statusMsg;
