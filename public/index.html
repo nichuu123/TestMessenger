@@ -9,13 +9,11 @@
         body, html { height: 100%; background: #000; overflow: hidden; }
         #app { max-width: 600px; margin: 0 auto; background: #fff; height: 100%; position: relative; overflow: hidden; }
         
-        /* Trackpad Focus Styles */
         a:focus, button:focus, input:focus, .list-item:focus, .accordion:focus {
             outline: 2px solid #005B8A !important;
             background-color: #E1F5FE !important;
         }
 
-        /* Profile Top Banner */
         .bb-header { background: #000; color: #fff; padding: 6px 8px; border-bottom: 2px solid #333; overflow: hidden; display: flex; align-items: center; justify-content: space-between; }
         .avatar { width: 42px; height: 42px; background: #555; border-radius: 4px; border: 1px solid #ffcc00; float: left; margin-right: 8px; background-size: cover; background-position: center; flex-shrink: 0; }
         .avatar-sm { width: 32px; height: 32px; background: #ccc; border-radius: 3px; float: left; margin-right: 8px; background-size: cover; background-position: center; border: 1px solid #aaa; flex-shrink: 0; }
@@ -24,15 +22,12 @@
         .pin-tag { color: #ffcc00; font-size: 11px; font-weight: bold; }
         .user-status-text { font-size: 11px; color: #ccc; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Status Dot Indicator */
         .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #2e7d32; margin-right: 4px; }
         .offline-dot { background: #888888; }
 
-        /* BBM Accordion Headers */
         .accordion { background: #c5d0d8; color: #000; font-weight: bold; font-size: 13px; padding: 5px 8px; border-top: 1px solid #fff; border-bottom: 1px solid #888; clear: both; }
         .accordion.yellow { background: #fef1b5; border-bottom: 1px solid #d6c694; }
 
-        /* Layout Views */
         #login-view { padding: 15px; background: #e8ecef; height: 100%; overflow-y: auto; text-align: center; }
         .input-field { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #888; border-radius: 3px; font-size: 13px; }
         .btn { padding: 8px 15px; background: #005B8A; color: #fff; font-weight: bold; border: 1px solid #003D5E; border-radius: 3px; cursor: pointer; font-size: 13px; }
@@ -42,21 +37,18 @@
         #home-view { height: 100%; display: none; }
         #home-content { height: calc(100% - 56px); overflow-y: auto; background: #fff; }
 
-        /* Contact Lists */
         .list-item { padding: 8px; border-bottom: 1px solid #eee; background: #fff; cursor: pointer; clear: both; overflow: hidden; }
         .list-item:active { background: #005B8A; color: #fff; }
         .list-item:active .status-msg { color: #d0e0ff; }
         .list-item .item-title { font-weight: bold; font-size: 13px; }
         .list-item .status-msg { font-size: 11px; color: #666; margin-top: 2px; }
 
-        /* Chat View Window */
         #chat-view { display: none; height: 100%; position: relative; background: #e8ecef; }
         #chat-header { background: #000; color: #fff; padding: 6px; border-bottom: 2px solid #005B8A; height: 45px; display: flex; align-items: center; }
         #back-btn { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: bold; padding: 0 10px 0 4px; cursor: pointer; }
         #chat-title-text { font-weight: bold; font-size: 14px; margin-left: 6px; flex-grow: 1; }
         #chat-messages { height: calc(100% - 90px); overflow-y: auto; padding: 8px; display: flex; flex-direction: column; }
 
-        /* Chat Bubbles & Ticks */
         .msg { margin-bottom: 8px; padding: 6px 8px; border-radius: 4px; font-size: 13px; max-width: 82%; position: relative; word-wrap: break-word; }
         .msg-in { background: #ffffff; border: 1px solid #ccc; align-self: flex-start; }
         .msg-out { background: #E1F5FE; border: 1px solid #B3E5FC; align-self: flex-end; }
@@ -64,12 +56,10 @@
         .msg-tick { font-size: 10px; font-weight: bold; color: #005B8A; margin-left: 5px; }
         .msg-read { color: #2e7d32; }
 
-        /* PING! Visual Indicator */
         .ping-bubble { background: #ffcdd2; border: 1px solid #e57373; color: #b71c1c; font-weight: bold; text-align: center; width: 95%; align-self: center; margin: 8px auto; }
         .ping-shake { animation: shake 0.3s ease-in-out infinite; }
         @keyframes shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-8px, 0); } 50% { transform: translate(8px, 0); } 75% { transform: translate(-8px, 0); } 100% { transform: translate(0, 0); } }
 
-        /* Controls / Input Bar */
         #input-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 45px; background: #ccc; padding: 6px; border-top: 1px solid #999; display: flex; gap: 4px; }
         #msg-input { flex: 1; padding: 6px; border: 1px solid #888; border-radius: 3px; font-size: 12px; }
         .chat-btn { width: 60px; height: 31px; font-size: 11px; padding: 0; }
@@ -88,7 +78,7 @@
             <p style="text-align:left; font-size:11px; margin-bottom:3px; color:#444;">Profile Picture (Optional):</p>
             <input type="file" id="login-avatar" class="input-field" accept="image/*" />
             
-            <button class="btn" style="width:100%; margin-top:5px;" onclick="doLogin()">Sign In / Register</button>
+            <button id="login-btn" class="btn" style="width:100%; margin-top:5px;" onclick="doLogin()">Sign In / Register</button>
             <br><br>
             <button class="btn btn-danger" style="width:100%; font-size:11px;" onclick="wipeDatabase()">Wipe Server Database (Reset All)</button>
         </div>
@@ -154,7 +144,6 @@
         let base64Avatar = '';
         let state = { users: {}, messages: [], updates: [] };
 
-        // Read Base64 Profile Picture
         document.getElementById('login-avatar').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -171,31 +160,37 @@
             return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Fixes "Unable to decrypt message after refresh" by storing keypairs in localStorage
         async function getOrCreateKeyPair(username) {
             const storageKey = 'bbm_e2ee_keys_' + username;
             const stored = localStorage.getItem(storageKey);
 
             if (stored) {
-                const parsed = JSON.parse(stored);
-                const privateKey = await crypto.subtle.importKey("jwk", parsed.privateKey, { name: "ECDH", namedCurve: "P-256" }, true, ["deriveKey"]);
-                const publicKey = await crypto.subtle.importKey("jwk", parsed.publicKey, { name: "ECDH", namedCurve: "P-256" }, true, []);
-                keyPair = { privateKey, publicKey };
-                return JSON.stringify(parsed.publicKey);
-            } else {
-                const newKeyPair = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveKey"]);
-                const pubJwk = await crypto.subtle.exportKey("jwk", newKeyPair.publicKey);
-                const privJwk = await crypto.subtle.exportKey("jwk", newKeyPair.privateKey);
-                
-                localStorage.setItem(storageKey, JSON.stringify({ privateKey: privJwk, publicKey: pubJwk }));
-                keyPair = newKeyPair;
-                return JSON.stringify(pubJwk);
+                try {
+                    const parsed = JSON.parse(stored);
+                    const privateKey = await crypto.subtle.importKey("jwk", parsed.privateKey, { name: "ECDH", namedCurve: "P-256" }, true, ["deriveKey"]);
+                    const publicKey = await crypto.subtle.importKey("jwk", parsed.publicKey, { name: "ECDH", namedCurve: "P-256" }, true, []);
+                    keyPair = { privateKey, publicKey };
+                    return JSON.stringify(parsed.publicKey);
+                } catch (err) {
+                    console.warn("Corrupted keys found. Wiping and generating new keys.", err);
+                    localStorage.removeItem(storageKey);
+                }
             }
+
+            const newKeyPair = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveKey"]);
+            const pubJwk = await crypto.subtle.exportKey("jwk", newKeyPair.publicKey);
+            const privJwk = await crypto.subtle.exportKey("jwk", newKeyPair.privateKey);
+            
+            localStorage.setItem(storageKey, JSON.stringify({ privateKey: privJwk, publicKey: pubJwk }));
+            keyPair = newKeyPair;
+            return JSON.stringify(pubJwk);
         }
 
         async function getSharedKey(targetUser) {
             if (sharedKeys[targetUser]) return sharedKeys[targetUser];
-            if (!state.users[targetUser] || !state.users[targetUser].pubKey) return null;
+            if (!state.users[targetUser] || !state.users[targetUser].pubKey) {
+                throw new Error("Target user hasn't generated encryption keys yet.");
+            }
 
             const targetPubKeyJwk = JSON.parse(state.users[targetUser].pubKey);
             const importedPubKey = await crypto.subtle.importKey("jwk", targetPubKeyJwk, { name: "ECDH", namedCurve: "P-256" }, true, []);
@@ -213,7 +208,6 @@
 
         async function encryptPayload(targetUser, text) {
             const key = await getSharedKey(targetUser);
-            if (!key) throw new Error("Public key unavailable for " + targetUser);
             const iv = crypto.getRandomValues(new Uint8Array(12));
             const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(text));
             return {
@@ -225,7 +219,6 @@
         async function decryptPayload(senderUser, ciphertextB64, ivB64) {
             try {
                 const key = await getSharedKey(senderUser);
-                if (!key) return "[Key Missing]";
                 const ciphertext = Uint8Array.from(atob(ciphertextB64), c => c.charCodeAt(0));
                 const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
                 const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
@@ -236,42 +229,54 @@
         }
 
         // --- AUTH & NETWORK LOGIC ---
-        async function doLogin(savedCreds) {
-            const u = savedCreds ? savedCreds.username : document.getElementById('login-user').value.trim();
-            const p = savedCreds ? savedCreds.password : document.getElementById('login-pass').value.trim();
-            const s = savedCreds ? savedCreds.statusMessage : document.getElementById('login-status').value.trim();
+        async function doLogin(autoCreds) {
+            const isAuto = autoCreds && typeof autoCreds.username === 'string';
+            const u = isAuto ? autoCreds.username : document.getElementById('login-user').value.trim();
+            const p = isAuto ? autoCreds.password : document.getElementById('login-pass').value.trim();
+            const s = isAuto ? autoCreds.statusMessage : document.getElementById('login-status').value.trim();
 
             if (!u || !p) return alert('Username & Password required');
 
-            const authHash = await deriveAuthHash(p, u);
-            const pubKeyStr = await getOrCreateKeyPair(u);
+            const btn = document.getElementById('login-btn');
+            if (btn) btn.innerText = 'Securing connection...';
 
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: u, authHash, pubKey: pubKeyStr, statusMessage: s, avatar: base64Avatar })
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                currentUser = data.user;
-                // Save Session for Auto-Login
-                localStorage.setItem('bbm_session', JSON.stringify({ username: u, password: p, statusMessage: s }));
-
-                document.getElementById('login-view').style.display = 'none';
-                document.getElementById('home-view').style.display = 'block';
-
-                document.getElementById('my-name').innerText = currentUser.username;
-                document.getElementById('my-pin').innerText = currentUser.pin;
-                document.getElementById('my-status').innerText = currentUser.statusMessage;
-                if (currentUser.avatar) {
-                    document.getElementById('my-avatar').style.backgroundImage = 'url(' + currentUser.avatar + ')';
+            try {
+                if (!window.crypto || !window.crypto.subtle) {
+                    throw new Error("Your browser is blocking the Web Crypto API. Please use HTTPS or localhost.");
                 }
 
-                initRealtime();
-            } else {
-                if (savedCreds) localStorage.removeItem('bbm_session');
-                alert(data.error || 'Login failed');
+                const authHash = await deriveAuthHash(p, u);
+                const pubKeyStr = await getOrCreateKeyPair(u);
+
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, authHash, pubKey: pubKeyStr, statusMessage: s, avatar: base64Avatar })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    currentUser = data.user;
+                    localStorage.setItem('bbm_session', JSON.stringify({ username: u, password: p, statusMessage: s }));
+
+                    document.getElementById('login-view').style.display = 'none';
+                    document.getElementById('home-view').style.display = 'block';
+
+                    document.getElementById('my-name').innerText = currentUser.username;
+                    document.getElementById('my-pin').innerText = currentUser.pin;
+                    document.getElementById('my-status').innerText = currentUser.statusMessage;
+                    if (currentUser.avatar) document.getElementById('my-avatar').style.backgroundImage = 'url(' + currentUser.avatar + ')';
+
+                    initRealtime();
+                } else {
+                    if (isAuto) localStorage.removeItem('bbm_session');
+                    alert(data.error || 'Login failed');
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Login Error: " + err.message);
+            } finally {
+                if (btn) btn.innerText = 'Sign In / Register';
             }
         }
 
@@ -297,12 +302,9 @@
                     renderHome();
                     if (currentTarget) await renderChat();
 
-                    // Detect Incoming PING!
                     if (state.messages.length > prevLen) {
                         const last = state.messages[state.messages.length - 1];
-                        if (last.target === currentUser.username && last.isPing) {
-                            triggerPingEffect();
-                        }
+                        if (last.target === currentUser.username && last.isPing) triggerPingEffect();
                     }
                 }
             };
@@ -384,5 +386,4 @@
             document.getElementById('chat-view').style.display = 'block';
 
             document.getElementById('chat-title-text').innerText = target;
-            const targetAvatar = (state.users[target] && state.users[target].avatar) ? state.users[target].avatar : '';
-            document.getElementById('chat-target-avatar').style.backgroundImage = targetAvatar ? 'url(' + targetAvatar +
+            const 
